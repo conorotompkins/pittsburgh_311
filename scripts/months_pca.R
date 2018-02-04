@@ -1,6 +1,8 @@
 library(broom)
 source("scripts/month_clustering.R")
 
+set.seed(1234)
+
 df_months %>% 
   ungroup() %>% 
   remove_rownames() %>% 
@@ -22,5 +24,6 @@ head(au)
 
 ggplot(au, aes(.fittedPC1, .fittedPC2)) +
   geom_point() +
-  geom_text(aes(label = .rownames), vjust = 1, hjust = 1) +
+  geom_label(aes(label = .rownames)) +
   theme_bw()
+ggsave("images/311_request_type_month_proportion_PCA.png", height = 12, width = 12)
