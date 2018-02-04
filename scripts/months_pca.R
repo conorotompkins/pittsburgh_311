@@ -1,6 +1,11 @@
 library(broom)
 source("scripts/month_clustering.R")
 
+#sources
+#https://rdrr.io/cran/broom/man/prcomp_tidiers.html
+#https://poissonisfish.wordpress.com/2017/01/23/principal-component-analysis-in-r/
+#http://rstatistics.net/principal-component-analysis/
+
 set.seed(1234)
 
 df_months %>% 
