@@ -1,4 +1,7 @@
 library(broom)
+
+options(scipen = 999)
+
 source("scripts/month_clustering.R")
 
 #sources
