@@ -54,3 +54,4 @@ df_months_pca %>%
     )
   ) %>%
   pull(pca_graph)
+ggsave("images/month_pca_graph.png")
