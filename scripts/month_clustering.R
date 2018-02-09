@@ -54,7 +54,8 @@ df_months %>%
 
 df_months %>% 
   select(request_type, month, month_percentage) %>% 
-  spread(month, month_percentage) -> df_months
+  spread(month, month_percentage) %>% 
+  ungroup() -> df_months
 
 df_months %>% 
   ggplot(aes(Jan, Jul)) +
