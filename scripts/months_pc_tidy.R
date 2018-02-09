@@ -36,4 +36,21 @@ var_exp %>%
   lims(y = c(0, 1)) +
   labs(y = "Variance",
        title = "Variance explained by each principal component")
-?fct_reorder
+
+df_months_pca %>%
+  mutate(
+    pca_graph = map2(
+      .x = pca,
+      .y = data,
+      ~ autoplot(.x, loadings = TRUE, loadings.label = TRUE,
+                 loadings.label.repel = TRUE,
+                 data = .y, label = TRUE,
+                 label.label = "request_type",
+                 label.repel = TRUE) +
+        theme_bw() +
+        labs(x = "Principal Component 1",
+             y = "Principal Component 2",
+             title = "First two principal components of PCA on 311 dataset")
+    )
+  ) %>%
+  pull(pca_graph)
