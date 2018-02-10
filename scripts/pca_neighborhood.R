@@ -11,10 +11,12 @@ source("scripts/neighborhood_clustering.R")
 
 set.seed(1234)
 
+df_nbh
+
 df_nbh %>% 
-  ungroup() %>% 
   remove_rownames() %>% 
   column_to_rownames(var = "neighborhood") -> df_nbh
+
 
 pc <- prcomp(df_nbh, scale = TRUE)
 
