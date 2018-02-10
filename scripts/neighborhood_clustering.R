@@ -15,7 +15,7 @@ df %>%
 
 df %>% 
   count(request_type, sort = TRUE) %>% 
-  top_n(200) -> df_top_requests
+  top_n(25) -> df_top_requests
 
 request_list <- unique(df_top_requests$request_type)
 
