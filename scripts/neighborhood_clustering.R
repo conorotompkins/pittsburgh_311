@@ -20,7 +20,7 @@ df %>%
 request_list <- unique(df_top_requests$request_type)
 
 df %>%
-  right_join(df_top_requests) %>% 
+  semi_join(df_top_requests) %>% 
   group_by(neighborhood, request_type) %>% 
   summarize(n = n()) %>% 
   complete(neighborhood, request_type = request_list) %>% 
