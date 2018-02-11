@@ -1,36 +1,8 @@
-library(tidyverse)
-library(lubridate)
-
-df_raw <- read_csv("data/pittsburgh_311.csv")
-
-df <- df_raw
-
-colnames(df) <- tolower(colnames(df))
-
-df %>%
-  mutate(date = ymd(str_sub(created_on, 1, 10)),
-         time = hms(str_sub(created_on, 11, 18)),
-         month = month(date, label = TRUE)) -> df
-
-df %>% 
-  filter(str_detect(request_type, "Snow/Ice")) %>%  
-  count(request_type)
-
-df %>% 
-  mutate(request_type = str_replace(request_type, "Snow/Ice removal", "Snow/Ice Removal")) -> df
-
-df %>% 
-  filter(str_detect(request_type, "Snow/Ice")) %>%  
-  count(request_type)
+source("scripts/load_data.R")
 
 df %>% 
   count(request_type, sort = TRUE) %>% 
   filter(n > 200) -> df_top_requests
-
-#df %>% 
-#  count(date, request_origin) %>% 
-#  ggplot(aes(date, n, color = request_origin)) +
-#  geom_smooth()
 
 df %>%
   semi_join(df_top_requests) %>% 
@@ -56,8 +28,3 @@ df_months %>%
   select(request_type, month, month_percentage) %>% 
   spread(month, month_percentage) %>% 
   ungroup() -> df_months
-
-df_months %>% 
-  ggplot(aes(Jan, Jul)) +
-  geom_point()
-
