@@ -33,7 +33,7 @@ df %>%
 #  geom_smooth()
 
 df %>%
-  right_join(df_top_requests) %>% 
+  semi_join(df_top_requests) %>% 
   group_by(request_type, month) %>% 
   summarize(n = n()) %>% 
   complete(request_type, month) %>% 
