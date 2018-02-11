@@ -2,6 +2,7 @@ library(broom)
 library(ggfortify)
 
 options(scipen = 999)
+set.seed(1234)
 
 df_months_pca <- df_months %>% 
   nest() %>% 
