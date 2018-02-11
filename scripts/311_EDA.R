@@ -1,22 +1,6 @@
-library(tidyverse)
-library(lubridate)
+source("scripts/load_data.R")
 
-theme_set(theme_bw())
-
-df_raw <- read_csv("data/pittsburgh_311.csv")
-
-df <- df_raw
-
-colnames(df) <- tolower(colnames(df))
-
-df %>%
-  mutate(date = ymd(str_sub(created_on, 1, 10)),
-         time = hms(str_sub(created_on, 11, 18)),
-         month = month(date, label = TRUE), 
-         year = year(date),
-         yday = yday(date)) -> df
-df %>% 
-  mutate(request_type = str_replace(request_type, "Snow/Ice removal", "Snow/Ice Removal")) -> df
+theme_set(theme_bw(base_family = 18))
 
 df %>% 
   count(request_type, sort = TRUE) %>% 
