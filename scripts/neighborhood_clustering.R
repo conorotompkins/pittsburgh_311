@@ -1,17 +1,7 @@
-library(tidyverse)
-library(lubridate)
-
-df_raw <- read_csv("data/pittsburgh_311.csv")
-
-df <- df_raw
-
-colnames(df) <- tolower(colnames(df))
+source("scripts/load_data.R")
 
 df %>%
   filter(!is.na(neighborhood)) -> df
-
-df %>% 
-  mutate(request_type = str_replace(request_type, "Snow/Ice removal", "Snow/Ice Removal")) -> df
 
 df %>% 
   count(request_type, sort = TRUE) %>% 
