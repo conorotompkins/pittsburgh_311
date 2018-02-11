@@ -2,6 +2,7 @@ library(broom)
 library(ggfortify)
 
 options(scipen = 999)
+set.seed(1234)
 
 source("scripts/neighborhood_clustering.R")
 
