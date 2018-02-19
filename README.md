@@ -96,7 +96,7 @@ df %>%
   theme(panel.grid = element_blank())
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github/area_chart-1.png)
 
 ``` r
 df %>% 
@@ -130,4 +130,4 @@ city_map +
   theme(axis.text = element_blank())
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/map-1.png)
