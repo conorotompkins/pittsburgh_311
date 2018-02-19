@@ -14,4 +14,5 @@ df %>%
          year = year(date),
          yday = yday(date)) -> df
 df %>% 
-  mutate(request_type = str_replace(request_type, "Snow/Ice removal", "Snow/Ice Removal")) -> df
+  mutate(request_type = str_replace(request_type, "Snow/Ice removal", "Snow/Ice Removal")) %>% 
+  ungroup() -> df
