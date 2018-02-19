@@ -19,66 +19,8 @@ df %>%
   count(request_type, sort = TRUE) %>% 
   top_n(5) %>% 
   ungroup() -> df_top_requests
-
-df_top_requests %>% 
-  kable("html") %>% 
-  kable_styling()
 ```
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-request\_type
-</th>
-<th style="text-align:right;">
-n
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Potholes
-</td>
-<td style="text-align:right;">
-25202
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Weeds/Debris
-</td>
-<td style="text-align:right;">
-16503
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Building Maintenance
-</td>
-<td style="text-align:right;">
-10469
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Snow/Ice Removal
-</td>
-<td style="text-align:right;">
-7266
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Refuse Violations
-</td>
-<td style="text-align:right;">
-6515
-</td>
-</tr>
-</tbody>
-</table>
 ``` r
 df %>% 
   semi_join(df_top_requests) %>% 
