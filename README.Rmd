@@ -4,7 +4,7 @@ output: github_document
 
 #311 requests in Pittsburgh
 
-```{r message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
+```{r setup, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 source("scripts/load_data.R")
 
 library(ggmap)
@@ -16,7 +16,7 @@ library(kableExtra)
 theme_set(theme_bw(base_family = 18))
 ```
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
 df %>% 
   count(request_type, sort = TRUE) %>% 
   top_n(5) %>% 
@@ -27,7 +27,7 @@ df_top_requests %>%
   kable_styling()
 ```
 
-```{r fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
+```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 df %>% 
   semi_join(df_top_requests) %>% 
   count(request_type, month) %>% 
@@ -45,7 +45,7 @@ df %>%
 
 ```
 
-```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+```{r map, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
 df %>% 
   select(request_type, x, y) %>% 
   filter(!is.na(x), !is.na(y),
