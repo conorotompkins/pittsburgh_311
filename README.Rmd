@@ -5,8 +5,7 @@ output: github_document
 311 requests in Pittsburgh
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(include = FALSE,
-                      cache = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
 ```
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -32,7 +31,7 @@ df_top_requests %>%
   kable_styling()
 ```
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
 df %>% 
   semi_join(df_top_requests) %>% 
   count(request_type, month) %>% 
@@ -48,7 +47,7 @@ df %>%
   theme(panel.grid = element_blank())
 ```
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
 df %>% 
   select(request_type, x, y) %>% 
   filter(!is.na(x), !is.na(y),
