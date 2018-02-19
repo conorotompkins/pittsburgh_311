@@ -2,13 +2,9 @@
 output: github_document
 ---
 
-311 requests in Pittsburgh
+#311 requests in Pittsburgh
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = TRUE)
-```
-
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 source("scripts/load_data.R")
 
 library(ggmap)
@@ -20,7 +16,7 @@ library(kableExtra)
 theme_set(theme_bw(base_family = 18))
 ```
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
 df %>% 
   count(request_type, sort = TRUE) %>% 
   top_n(5) %>% 
@@ -31,7 +27,7 @@ df_top_requests %>%
   kable_styling()
 ```
 
-```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 df %>% 
   semi_join(df_top_requests) %>% 
   count(request_type, month) %>% 
@@ -44,10 +40,12 @@ df %>%
   labs(title = "311 requests in Pittsburgh",
        x = "",
        y = "Number of requests") +
+  theme_bw(base_family = 18) +
   theme(panel.grid = element_blank())
+
 ```
 
-```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
 df %>% 
   select(request_type, x, y) %>% 
   filter(!is.na(x), !is.na(y),
@@ -75,5 +73,7 @@ city_map +
   labs(title = "311 requests in Pittsburgh",
        x = "",
        y = "") +
+  theme_bw(base_family = 18) +
   theme(axis.text = element_blank())
+  
 ```
