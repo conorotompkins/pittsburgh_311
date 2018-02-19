@@ -1,5 +1,6 @@
 
 311 requests in Pittsburgh
+==========================
 
 ``` r
 source("scripts/load_data.R")
@@ -91,6 +92,7 @@ df %>%
   labs(title = "311 requests in Pittsburgh",
        x = "",
        y = "Number of requests") +
+  theme_bw(base_family = 18) +
   theme(panel.grid = element_blank())
 ```
 
@@ -124,6 +126,7 @@ city_map +
   labs(title = "311 requests in Pittsburgh",
        x = "",
        y = "") +
+  theme_bw(base_family = 18) +
   theme(axis.text = element_blank())
 ```
 
