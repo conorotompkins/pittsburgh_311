@@ -1,0 +1,114 @@
+---
+title: "R Workshop (Code for Pittsburgh)"
+author: "Conor Tompkins"
+date: "4/10/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##What is R
+
+##Intro to R
+
+##How Does R Work?
+
+##Compare to Excel
+
+##Basic Functions
+Functions to cover
+-add
+-subtract
+-strings
+-assign
+
+##What is the Tidyverse?
+
+##How does the Tidyverse work?
+Tidyverse functions
+-select
+-filter
+-mutate
+-group_by
+-summarize
+-ggplot2
+
+##Making graphs with 311 data
+-load the data from WPRDC
+-examine the data in R
+-filter out non-pothole reports
+-filter by date
+-summarize total requests per month/year
+
+##Make this graph in R
+https://twitter.com/conor_tompkins/status/967028854652129281
+
+
+```{r load_data}
+###df <- read_csv()
+```
+
+
+```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+df %>% 
+  count(request_type, sort = TRUE) %>% 
+  top_n(5) %>% 
+  ungroup() -> df_top_requests
+```
+
+```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
+df %>% 
+  semi_join(df_top_requests) %>% 
+  count(request_type, month) %>% 
+  ggplot(aes(month, n, group = request_type, fill = request_type)) +
+  geom_area() +
+  scale_fill_viridis("Request type", discrete = TRUE, option = "D") +
+  scale_y_continuous(expand = c(0, 0),
+                     labels = comma) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Top 5 types of 311 requests in Pittsburgh",
+       x = "",
+       y = "Number of requests") +
+  theme_bw(base_family = 18) +
+  theme(panel.grid = element_blank())
+
+```
+
+
+##Make this graph in R
+
+```{r map, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+df %>% 
+  select(request_type, x, y) %>% 
+  filter(!is.na(x), !is.na(y),
+         request_type %in% c("Potholes", "Snow/Ice Removal")) -> df_map
+
+city_map <-  get_map("North Oakland, Pittsburgh, PA", 
+                     zoom = 12,
+                     maptype = "toner", 
+                     source = "stamen")
+
+city_map <- ggmap(city_map)
+
+#Put the data on the map
+city_map +
+  stat_density_2d(data = df_map, #Using a 2d contour
+                  aes(x, #longitude
+                      y, #latitude
+                      fill = request_type, #Use the count of arrests as the fill
+                      alpha = ..level..), #Use alpha so you can see the map under the data
+                  geom = "polygon") + #We want the contour in a polygon
+  facet_wrap(~request_type) +
+  scale_alpha_continuous(range = c(.1, 1)) +
+  guides(fill = FALSE,
+         alpha = guide_legend("Number of requests")) +
+  labs(title = "The Two Seasons In Pittsburgh",
+       subtitle = "311 requests in Pittsburgh",
+       x = "",
+       y = "") +
+  theme_bw(base_family = 18) +
+  theme(axis.text = element_blank())
+  
+```
