@@ -6,16 +6,57 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
 ##What is R
+R is an interpreted programming language for statistics
 
-##Intro to R
+##Intro to RStudio
+RStudio is an Itegrated Development Environment for R
+4 panels
+-Scripts
+-Console
+-Environment
+-Files
 
 ##How Does R Work?
+```{r}
+1
+```
+
+```{r}
+1 + 2
+```
+
+```{r}
+10 / 2
+```
+
+```{r}
+5 * 2
+```
+
+```{r}
+"this is a string. strings in R are surrounded by quotation marks."
+```
+
+```{r error = TRUE}
+"1" + 1
+```
+
+```{r}
+str(1)
+str("1")
+```
+
+
+
 
 ##Compare to Excel
+R separates the data from the analysis. The data is stored in files (CSVs, JSON, etc). The analysis is stored in scripts. This makes it easier to share analysis performed in R. No need to take screenshots of your workflow in Excel. You have a record of everything that was done to the data.
+
+##Compare to other programming languages
 
 ##Basic Functions
 Functions to cover
@@ -46,10 +87,26 @@ Tidyverse functions
 https://twitter.com/conor_tompkins/status/967028854652129281
 
 
-```{r load_data}
-###df <- read_csv()
+```{r load_environment}
+library(tidyverse)
+library(lubridate)
+library(viridis)
+library(scales)
+library(ggmap)
 ```
 
+```{r load_data}
+df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
+
+colnames(df) <- tolower(colnames(df))
+
+df %>%
+  mutate(date = ymd(str_sub(created_on, 1, 10)),
+         time = hms(str_sub(created_on, 11, 18)),
+         month = month(date, label = TRUE), 
+         year = year(date),
+         yday = yday(date)) -> df
+```
 
 ```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
 df %>% 
@@ -91,7 +148,9 @@ city_map <-  get_map("North Oakland, Pittsburgh, PA",
                      source = "stamen")
 
 city_map <- ggmap(city_map)
+```
 
+```{r error = TRUE}
 #Put the data on the map
 city_map +
   stat_density_2d(data = df_map, #Using a 2d contour
@@ -110,5 +169,4 @@ city_map +
        y = "") +
   theme_bw(base_family = 18) +
   theme(axis.text = element_blank())
-  
 ```
