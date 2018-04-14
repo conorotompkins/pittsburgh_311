@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 R is an interpreted programming language for statistics
 
 ##Intro to RStudio
-RStudio is an Itegrated Development Environment for R
+RStudio is an Integrated Development Environment for R
 4 panels
 -Scripts
 -Console
@@ -50,6 +50,9 @@ str(1)
 str("1")
 ```
 
+Objects vs. Functions
+
+Assignment vs. Equals
 
 
 
@@ -68,20 +71,153 @@ Functions to cover
 ##What is the Tidyverse?
 
 ##How does the Tidyverse work?
+
+Focus on dataframes
+Columns and rows
+Everything* is a square
+*Most things
+
+```{r}
+#print example df
+```
+
 Tidyverse functions
--select
--filter
--mutate
--group_by
--summarize
--ggplot2
+-**select** columns
+-**filter** rows
+-**mutate** new columns
+-**group_by** rows and **summarize**
+-**ggplot2** your data
+
+```{r load_data_hidden, include=FALSE}
+library(tidyverse)
+library(lubridate)
+df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
+
+colnames(df) <- tolower(colnames(df))
+
+df %>%
+  mutate(date = ymd(str_sub(created_on, 1, 10)),
+         time = hms(str_sub(created_on, 11, 18)),
+         month = month(date, label = TRUE), 
+         year = year(date),
+         yday = yday(date)) -> df
+```
+
+Explore the data
+```{r}
+df
+```
+```{r}
+glimpse(df)
+```
+
+%>% means "and then"
+%>% passes the dataframe to the next function
+
+```{r}
+df %>% #select the dataframe
+  select(date, request_type) #select the date and request_type columns
+```
+
+```{r}
+df %>% 
+  select(date, request_type) %>% 
+  filter(request_type == "Potholes")
+```
+
+```{r}
+#mutate
+library(lubridate)
+df %>% 
+  select(date, request_type) %>% 
+  filter(request_type == "Potholes") %>% 
+  mutate(weekday = wday(date, label = TRUE))
+```
+
+```{r}
+#group_by and summarize
+df %>% 
+  select(date, request_type) %>% 
+  filter(request_type == "Potholes") %>% 
+  mutate(month = month(date, label = TRUE)) %>% 
+  group_by(request_type, month) %>% 
+  summarize(count = n()) -> df_potholes_month
+```
 
 ##Making graphs with 311 data
 -load the data from WPRDC
 -examine the data in R
 -filter out non-pothole reports
--filter by date
 -summarize total requests per month/year
+
+```{r}
+df_potholes_month %>% 
+  ggplot(aes(month, count)) +
+  geom_col()
+```
+
+Make it pretty
+```{r}
+df_potholes_month %>% 
+  ggplot(aes(month, count)) +
+  geom_col() + 
+  labs(title = "Pothole requests to Pittsburgh 311",
+       x = "",
+       y = "Number of requests",
+       caption = "Source: Western Pennsylvania Regional Datacenter") +
+  theme_bw()
+```
+
+```{r}
+df %>% 
+  filter(request_type == "Potholes") %>% 
+  count(date)
+```
+
+```{r}
+#assign labels to objects to save some typing
+my_title <- "Pothole requests to Pittsburgh 311"
+my_caption <- "Source: Western Pennsylvania Regional Datacenter"
+df %>% 
+  filter(request_type == "Potholes") %>% 
+  count(date) %>% 
+  ggplot(aes(date, n)) +
+  geom_line() +
+  labs(title = my_title,
+       x = "",
+       y = "Number of requests",
+       caption = my_caption) +
+  theme_bw()
+```
+
+```{r}
+df %>% 
+  select(request_type, date) %>% 
+  filter(request_type == "Potholes") %>% 
+  mutate(year = year(date),
+         yday = yday(date)) %>% 
+  count(year, yday) %>%  #shortcut for group_by + summarize for counting. returns "n"
+  ggplot(aes(yday, n, color = as.factor(year))) +
+  geom_line() +
+  theme_bw()
+```
+
+```{r}
+df %>% 
+  select(request_type, date) %>% 
+  filter(request_type == "Potholes") %>% 
+  mutate(year = year(date),
+         yday = yday(date)) %>% 
+  arrange(date) %>% #always arrange your data for cumulative sums
+  group_by(year, yday) %>%
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  mutate(cumsum = cumsum(n)) %>% 
+  ggplot(aes(yday, cumsum, color = as.factor(year))) +
+  geom_line(size = 2) +
+  theme_bw()
+```
 
 ##Make this graph in R
 https://twitter.com/conor_tompkins/status/967028854652129281
@@ -130,7 +266,6 @@ df %>%
        y = "Number of requests") +
   theme_bw(base_family = 18) +
   theme(panel.grid = element_blank())
-
 ```
 
 
