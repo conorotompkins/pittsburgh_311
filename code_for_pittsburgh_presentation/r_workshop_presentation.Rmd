@@ -3,44 +3,49 @@ title: "R Workshop (Code for Pittsburgh)"
 author: "Conor Tompkins"
 date: "4/10/2018"
 output: html_document
+#runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
-##What is R
+#What is R
+
 R is an interpreted programming language for statistics
 
-##Intro to RStudio
-RStudio is an Integrated Development Environment for R
-4 panels
--Scripts
--Console
--Environment
--Files
+###RStudio
+Integrated Development Environment for R
 
-##How Does R Work?
+* Script
+* Console
+* Enviroment
+* Plots
+
+#How Does R Work?
+
+##Basic Functions
+
+* add
+* subtract
+* strings
 ```{r}
 1
 ```
-
 ```{r}
 1 + 2
 ```
-
 ```{r}
 10 / 2
 ```
-
 ```{r}
 5 * 2
 ```
-
 ```{r}
 "this is a string. strings in R are surrounded by quotation marks."
 ```
 
+Type matters
 ```{r error = TRUE}
 "1" + 1
 ```
@@ -50,43 +55,98 @@ str(1)
 str("1")
 ```
 
-Objects vs. Functions
+##Objects, Functions, and Assignment
+Reminder that objects are shown in the Environment panel
+```{r error = TRUE}
+x
+```
+```{r}
+x <- 1
+x
+```
+```{r}
+x <- 1
+y <- 5
 
-Assignment vs. Equals
+x + y
+```
 
+c() means "concatenate". It creates vectors
+```{r}
+a <- c(x, y)
+a
+```
+```{r}
+z <- sum(a)
+z
+```
 
+"<-" and "=" do the same thing. To minimize confusion, many people use "<-" for objects and "=" for assigning variables within functions or dataframes
+```{r}
+x <- 1
+
+a <- data_frame(a = 1:5,
+                b = 6:10)
+a
+```
+```{r}
+#start a line of code with a "#" to make that line a comment
+#1 + 1
+#code that is "commented out" will not be executed
+```
+
+###Logical
+"x == y" means "is x equal to y"
+```{r}
+1 == 2
+```
+
+"!" means "not"
+```{r}
+!FALSE
+```
+
+TRUE = 1, FALSE = 0
+```{r}
+TRUE + FALSE
+```
+```{r}
+TRUE + TRUE
+```
+
+###Working Directory
+How to set up the working directory
+```{r}
+getwd()
+```
+
+Session menu -> Set working directory -> choose your folder
+
+```{r eval = FALSE}
+setwd()
+```
 
 ##Compare to Excel
-R separates the data from the analysis. The data is stored in files (CSVs, JSON, etc). The analysis is stored in scripts. This makes it easier to share analysis performed in R. No need to take screenshots of your workflow in Excel. You have a record of everything that was done to the data.
+R separates the data from the analysis. The data is stored in files (CSV, JSON, etc). The analysis is stored in scripts. This makes it easier to share analysis performed in R. No need to take screenshots of your workflow in Excel. You have a record of everything that was done to the data.
 
 ##Compare to other programming languages
 
-##Basic Functions
-Functions to cover
--add
--subtract
--strings
--assign
+#What is the Tidyverse?
 
-##What is the Tidyverse?
+A group of R packages that use a common grammar for wranging, analyzing, modeling, and graphing data
 
-##How does the Tidyverse work?
+* Focus on dataframes
+* Columns and rows
+* Everything is a square
+    + Most things
 
-Focus on dataframes
-Columns and rows
-Everything* is a square
-*Most things
+##Tidyverse functions
 
-```{r}
-#print example df
-```
-
-Tidyverse functions
--**select** columns
--**filter** rows
--**mutate** new columns
--**group_by** rows and **summarize**
--**ggplot2** your data
+* **select** columns
+* **filter** rows
+* **mutate** new columns
+* **group_by** rows and **summarize**
+* **ggplot2** your data
 
 ```{r load_data_hidden, include=FALSE}
 library(tidyverse)
@@ -105,26 +165,24 @@ df %>%
 
 Explore the data
 ```{r}
-df
+df #simply type the name of the object to preview it
 ```
 ```{r}
 glimpse(df)
 ```
 
 %>% means "and then"
-%>% passes the dataframe to the next function
 
+%>% passes the dataframe to the next function
 ```{r}
 df %>% #select the dataframe
   select(date, request_type) #select the date and request_type columns
 ```
-
 ```{r}
 df %>% 
   select(date, request_type) %>% 
   filter(request_type == "Potholes")
 ```
-
 ```{r}
 #mutate
 library(lubridate)
@@ -133,30 +191,34 @@ df %>%
   filter(request_type == "Potholes") %>% 
   mutate(weekday = wday(date, label = TRUE))
 ```
-
 ```{r}
 #group_by and summarize
-df %>% 
+(df %>% 
   select(date, request_type) %>% 
   filter(request_type == "Potholes") %>% 
   mutate(month = month(date, label = TRUE)) %>% 
   group_by(request_type, month) %>% 
-  summarize(count = n()) -> df_potholes_month
+  summarize(count = n()) %>% 
+  arrange(desc(count)) -> df_potholes_month)
 ```
 
-##Making graphs with 311 data
--load the data from WPRDC
--examine the data in R
--filter out non-pothole reports
--summarize total requests per month/year
+Put your code in parentheses to execute it AND print the output in the console
 
+#Making graphs with 311 data
+
+Steps
+
+1. Load the data from WPRDC
+2. Examine the data in R
+3. Filter out non-pothole reports
+4. Summarize total requests per month/year
 ```{r}
 df_potholes_month %>% 
   ggplot(aes(month, count)) +
   geom_col()
 ```
 
-Make it pretty
+Make it pretty. Add a title, subtitle, axes labels, captions, and themes
 ```{r}
 df_potholes_month %>% 
   ggplot(aes(month, count)) +
@@ -167,13 +229,11 @@ df_potholes_month %>%
        caption = "Source: Western Pennsylvania Regional Datacenter") +
   theme_bw()
 ```
-
 ```{r}
 df %>% 
   filter(request_type == "Potholes") %>% 
   count(date)
 ```
-
 ```{r}
 #assign labels to objects to save some typing
 my_title <- "Pothole requests to Pittsburgh 311"
@@ -187,9 +247,10 @@ df %>%
        x = "",
        y = "Number of requests",
        caption = my_caption) +
-  theme_bw()
+  theme_bw(base_family = 18)
 ```
 
+Note that ggplot2 automatically formats the axis labels for dates
 ```{r}
 df %>% 
   select(request_type, date) %>% 
@@ -199,9 +260,12 @@ df %>%
   count(year, yday) %>%  #shortcut for group_by + summarize for counting. returns "n"
   ggplot(aes(yday, n, color = as.factor(year))) +
   geom_line() +
-  theme_bw()
+  labs(title = my_title,
+       x = "Day of the year",
+       y = "Number of requests",
+       caption = my_caption) +
+  theme_bw(base_family = 18)
 ```
-
 ```{r}
 df %>% 
   select(request_type, date) %>% 
@@ -216,12 +280,16 @@ df %>%
   mutate(cumsum = cumsum(n)) %>% 
   ggplot(aes(yday, cumsum, color = as.factor(year))) +
   geom_line(size = 2) +
-  theme_bw()
+  labs(title = my_title,
+       x = "Day of the year",
+       y = "Cumulative sum of requests",
+       caption = my_caption) +
+  scale_color_discrete("Year") +
+  theme_bw(base_family = 18)
 ```
 
-##Make this graph in R
+##Making an area chart in R
 https://twitter.com/conor_tompkins/status/967028854652129281
-
 
 ```{r load_environment}
 library(tidyverse)
@@ -231,7 +299,8 @@ library(scales)
 library(ggmap)
 ```
 
-```{r load_data}
+Since the 2015 year is incomplete, filter it out
+```{r load_data, eval=FALSE}
 df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
 
 colnames(df) <- tolower(colnames(df))
@@ -241,19 +310,19 @@ df %>%
          time = hms(str_sub(created_on, 11, 18)),
          month = month(date, label = TRUE), 
          year = year(date),
-         yday = yday(date)) -> df
+         yday = yday(date)) %>% 
+  filter(date >= "2016-01-01",
+         date <= "2018-01-01") -> df
 ```
-
-```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+```{r top_requests, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 df %>% 
   count(request_type, sort = TRUE) %>% 
   top_n(5) %>% 
   ungroup() -> df_top_requests
 ```
-
 ```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
 df %>% 
-  semi_join(df_top_requests) %>% 
+  semi_join(df_top_requests) %>% #joins are ways to combine two dataframes
   count(request_type, month) %>% 
   ggplot(aes(month, n, group = request_type, fill = request_type)) +
   geom_area() +
@@ -262,16 +331,16 @@ df %>%
                      labels = comma) +
   scale_x_discrete(expand = c(0, 0)) +
   labs(title = "Top 5 types of 311 requests in Pittsburgh",
+       subtitle = "2016 to 2017",
        x = "",
-       y = "Number of requests") +
+       y = "Number of requests",
+       caption = my_caption) +
   theme_bw(base_family = 18) +
   theme(panel.grid = element_blank())
 ```
 
-
-##Make this graph in R
-
-```{r map, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE, cache=TRUE}
+##Mapping in R
+```{r map, eval=FALSE, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
 df %>% 
   select(request_type, x, y) %>% 
   filter(!is.na(x), !is.na(y),
@@ -284,8 +353,7 @@ city_map <-  get_map("North Oakland, Pittsburgh, PA",
 
 city_map <- ggmap(city_map)
 ```
-
-```{r error = TRUE}
+```{r eval = FALSE, error = TRUE}
 #Put the data on the map
 city_map +
   stat_density_2d(data = df_map, #Using a 2d contour
@@ -301,7 +369,8 @@ city_map +
   labs(title = "The Two Seasons In Pittsburgh",
        subtitle = "311 requests in Pittsburgh",
        x = "",
-       y = "") +
+       y = "",
+       caption = my_caption) +
   theme_bw(base_family = 18) +
   theme(axis.text = element_blank())
 ```
