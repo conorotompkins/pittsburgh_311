@@ -7,7 +7,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
 
 #What is R
@@ -82,6 +82,10 @@ z
 ```
 
 "<-" and "=" do the same thing. To minimize confusion, many people use "<-" for objects and "=" for assigning variables within functions or dataframes
+
+```{r include=FALSE}
+library(tibble)
+```
 ```{r}
 x <- 1
 
