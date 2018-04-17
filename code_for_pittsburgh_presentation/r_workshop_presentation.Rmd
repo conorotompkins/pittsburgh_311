@@ -9,6 +9,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
+#Goals
+* Learn how R works
+* Gain basic skills for exploratory analysis with R
+* Learn something about local data and potholes!
+
+If we are successful, you should be able to hit the ground running on your own project with R
 
 #Setup
 Install R from [CRAN](https://cran.r-project.org/)
@@ -178,7 +184,7 @@ Use the built-in documentation. Put a "?" before the name of a function to acces
 
 [StackOverflow](https://stackoverflow.com/questions/tagged/r?sort=frequent&pageSize=15)
 
-###Working Directory
+##Working Directory
 How to set up the working directory
 ```{r}
 getwd()
@@ -446,7 +452,7 @@ Select the request_type, x, and y columns. x and y are longitude and latitude
          request_type == "Potholes") -> df_map) #remove missing x and y values
 ```
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 city_map <-  get_map("North Oakland, Pittsburgh, PA", 
                      zoom = 12,
                      maptype = "toner", 
@@ -456,20 +462,20 @@ city_map <-  get_map("North Oakland, Pittsburgh, PA",
 ```
 
 Put the data on the map
-```{r eval=FALSE}
+```{r eval=TRUE}
 city_map +
   geom_point(data = df_map, aes(x, y, color = request_type)) #graph the data with dots
 ```
 
 There is too much data on the graph. Make the dots more transparent to show density
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 city_map +
   geom_point(data = df_map, aes(x, y, color = request_type), alpha = .1) #graph the data with dots
 ```
 
 Still not great. Density plots are better for showing overplotted data
-```{r eval=FALSE}
+```{r eval=TRUE}
 #Put the data on the map
 city_map +
   stat_density_2d(data = df_map, #Using a 2d density contour
