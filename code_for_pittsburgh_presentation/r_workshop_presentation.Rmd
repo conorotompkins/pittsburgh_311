@@ -10,6 +10,27 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
 
+#Setup
+Install R from [CRAN](https://cran.r-project.org/)
+
+* Use the default options in the installation process
+
+Install RStudio from [RStudio](https://www.rstudio.com/products/rstudio/#Desktop)
+
+* RStudio Desktop
+
+Install the tidyverse, lubridate, and ggmap packages
+```{r eval=FALSE}
+install.packages("tidyverse", "lubridate", "ggmap")
+#you will see activity in the console as the packages are installed
+```
+
+Create a folder called "R workshop"
+
+Download the 311 data from the [WPRDC](https://data.wprdc.org/dataset/311-data)
+
+Move that CSV into the "R workshop" folder
+
 #What is R
 
 R is an interpreted programming language for statistics
@@ -19,8 +40,8 @@ Integrated Development Environment for R
 
 * Script
 * Console
-* Enviroment
-* Plots
+* Enviroment (History, Connections, Git)
+* Files (Plots, Packages, Help, Viewer)
 
 #How Does R Work?
 
@@ -64,6 +85,13 @@ x
 x <- 1
 x
 ```
+
+You can overwrite (or update) an object
+```{r}
+x <- 2
+x
+```
+
 ```{r}
 x <- 1
 y <- 5
@@ -81,26 +109,31 @@ z <- sum(a)
 z
 ```
 
-"<-" and "=" do the same thing. To minimize confusion, many people use "<-" for objects and "=" for assigning variables within functions or dataframes
-
-```{r include=FALSE}
-library(tibble)
+##Dataframes
+```{r}
+my_df <- data.frame(a = 1:5,
+                b = 6:10,
+                c = c("a", "b", "c", "d", "e"))
+my_df
 ```
+
+Select individual columns in a dataframe with the $ operator
+```{r}
+my_df$a
+```
+
+"<-" and "=" do the same thing. To minimize confusion, many people use "<-" for objects and "=" for assigning variables within functions or dataframes
 ```{r}
 x <- 1
 
-a <- data_frame(a = 1:5,
+a <- data.frame(a = 1:5,
                 b = 6:10)
 a
-```
-```{r}
-#start a line of code with a "#" to make that line a comment
-#1 + 1
-#code that is "commented out" will not be executed
+
 ```
 
-###Logical
-"x == y" means "is x equal to y"
+##Logic
+"x == y" means "is x equal to y?"
 ```{r}
 1 == 2
 ```
@@ -117,6 +150,33 @@ TRUE + FALSE
 ```{r}
 TRUE + TRUE
 ```
+
+R is case-sensitive
+```{r}
+"a" == "A"
+```
+
+##Loading packages
+```{r eval=FALSE}
+library(package_name)
+```
+
+You have to load your packages each time you start R
+
+##Commenting
+```{r}
+#start a line of code with a "#" to make that line a comment
+#1 + 1
+#code that is "commented out" will not be executed
+```
+
+##Getting help with R
+Use the built-in documentation. Put a "?" before the name of a function to access the documentation in the Help panel
+```{r}
+?mean
+```
+
+[StackOverflow](https://stackoverflow.com/questions/tagged/r?sort=frequent&pageSize=15)
 
 ###Working Directory
 How to set up the working directory
@@ -141,24 +201,27 @@ A group of R packages that use a common grammar for wranging, analyzing, modelin
 
 * Focus on dataframes
 * Columns and rows
-* Everything is a square
-    + Most things
 
 ##Tidyverse functions
 
 * **select** columns
 * **filter** rows
 * **mutate** new columns
-* **group_by** rows and **summarize**
+* **group_by** and **summarize** rows
 * **ggplot2** your data
 
-```{r load_data_hidden, include=FALSE}
+read_csv() reads CSV files from your working directory
+```{r load_data}
 library(tidyverse)
 library(lubridate)
+
+#df <- read_csv("your_file_name_here.csv")
+
 df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
 
-colnames(df) <- tolower(colnames(df))
+colnames(df) <- tolower(colnames(df)) #make all the column names lowercase. this is a personal preference
 
+#initial data munging to get the dates in shape
 df %>%
   mutate(date = ymd(str_sub(created_on, 1, 10)),
          time = hms(str_sub(created_on, 11, 18)),
@@ -172,12 +235,14 @@ Explore the data
 df #simply type the name of the object to preview it
 ```
 ```{r}
-glimpse(df)
+glimpse(df) #get a summary of the dataframe
 ```
 
 %>% means "and then"
 
 %>% passes the dataframe to the next function
+
+###select
 ```{r}
 df %>% #select the dataframe
   select(date, request_type) #select the date and request_type columns
@@ -185,41 +250,54 @@ df %>% #select the dataframe
 ```{r}
 df %>% 
   select(date, request_type) %>% 
-  filter(request_type == "Potholes")
+  filter(request_type == "Potholes") #use the string "Potholes" to filter the dataframe
 ```
+
+###mutate
 ```{r}
-#mutate
-library(lubridate)
 df %>% 
   select(date, request_type) %>% 
   filter(request_type == "Potholes") %>% 
   mutate(weekday = wday(date, label = TRUE))
 ```
+
+###group_by and summarize
 ```{r}
-#group_by and summarize
 (df %>% 
-  select(date, request_type) %>% 
-  filter(request_type == "Potholes") %>% 
-  mutate(month = month(date, label = TRUE)) %>% 
-  group_by(request_type, month) %>% 
-  summarize(count = n()) %>% 
-  arrange(desc(count)) -> df_potholes_month)
+  select(date, request_type) %>% #select columns
+  filter(request_type == "Potholes") %>% #filter by "Potholes"
+  mutate(month = month(date, label = TRUE)) %>% #add month column
+  group_by(request_type, month) %>% #group by the unqiue request_type values and month values
+  summarize(count = n()) %>% #summarize to count the number of rows in each combination of request_type and month
+  arrange(desc(count)) -> df_potholes_month) #arrange the rows by the number of requests
 ```
 
 Put your code in parentheses to execute it AND print the output in the console
 
 #Making graphs with 311 data
 
-Steps
+##ggplot2
 
-1. Load the data from WPRDC
-2. Examine the data in R
-3. Filter out non-pothole reports
-4. Summarize total requests per month/year
+* aesthetics (the columns you want to graph with)
+* geoms (the shapes you want to use to graph the data)
+
+```{r eval=FALSE}
+ggplot(data = _ , aes(x = _, y = _)) +
+  geom_()
+```
+
+Pipe your data directly into ggplot2
+```{r eval=FALSE}
+some_dataframe %>% 
+  ggplot(data = _ , aes(x = _, y = _)) +
+  geom_()
+```
+
+Graph the number of pothole requests per month
 ```{r}
 df_potholes_month %>% 
-  ggplot(aes(month, count)) +
-  geom_col()
+  ggplot(aes(x = month, y = count)) + #put the month column on the x axis, count on the y axis
+  geom_col() #graph the data with columns
 ```
 
 Make it pretty. Add a title, subtitle, axes labels, captions, and themes
@@ -233,45 +311,70 @@ df_potholes_month %>%
        caption = "Source: Western Pennsylvania Regional Datacenter") +
   theme_bw()
 ```
+
+Make a line graph of the number of pothole requests in the dataset by date
 ```{r}
 df %>% 
   filter(request_type == "Potholes") %>% 
-  count(date)
+  count(date) #group_by and summarize the number of rows per date
 ```
 ```{r}
 #assign labels to objects to save some typing
 my_title <- "Pothole requests to Pittsburgh 311"
 my_caption <- "Source: Western Pennsylvania Regional Datacenter"
+
 df %>% 
   filter(request_type == "Potholes") %>% 
   count(date) %>% 
   ggplot(aes(date, n)) +
-  geom_line() +
-  labs(title = my_title,
+  geom_line() + #use a line to graph the data
+  labs(title = my_title, #use the object you created earlier
        x = "",
        y = "Number of requests",
-       caption = my_caption) +
-  theme_bw(base_family = 18)
+       caption = my_caption) + #use the object you created earlier
+  theme_bw(base_family = 18) #base_family modifies the size of the font
 ```
 
 Note that ggplot2 automatically formats the axis labels for dates
+
+Graph the data by number of requests per day of the year
 ```{r}
-df %>% 
+(df %>% 
   select(request_type, date) %>% 
   filter(request_type == "Potholes") %>% 
-  mutate(year = year(date),
-         yday = yday(date)) %>% 
-  count(year, yday) %>%  #shortcut for group_by + summarize for counting. returns "n"
-  ggplot(aes(yday, n, color = as.factor(year))) +
-  geom_line() +
+  mutate(year = year(date), #create a year column
+         yday = yday(date)) %>% #create a day of the year column
+  count(year, yday) -> df_day_of_year)  #shortcut for group_by + summarize for counting. returns "n"
+```
+
+```{r}
+df_day_of_year %>% 
+  ggplot(aes(yday, n, group = year)) + #color the lines by year. #as.factor() turns the year column from integer to factor (ordinal string)
+  geom_line() + 
   labs(title = my_title,
        x = "Day of the year",
        y = "Number of requests",
        caption = my_caption) +
   theme_bw(base_family = 18)
 ```
+
+That plotted a line for each year, but there is no way to tell which line corresponds with which year
+
+Color the lines by the year
 ```{r}
-df %>% 
+df_day_of_year %>% 
+  ggplot(aes(yday, n, color = as.factor(year))) + #color the lines by year. #as.factor() turns the year column from integer to factor (ordinal string)
+  geom_line() + 
+  labs(title = my_title,
+       x = "Day of the year",
+       y = "Number of requests",
+       caption = my_caption) +
+  theme_bw(base_family = 18)
+```
+
+Graph the cumulative sum of pothole requests per year
+```{r}
+(df %>% 
   select(request_type, date) %>% 
   filter(request_type == "Potholes") %>% 
   mutate(year = year(date),
@@ -281,7 +384,11 @@ df %>%
   summarize(n = n()) %>% 
   ungroup() %>% 
   group_by(year) %>% 
-  mutate(cumsum = cumsum(n)) %>% 
+  mutate(cumsum = cumsum(n)) -> df_cumulative_sum) #calculate the cumulative sum per year
+```
+
+```{r}
+df_cumulative_sum %>% 
   ggplot(aes(yday, cumsum, color = as.factor(year))) +
   geom_line(size = 2) +
   labs(title = my_title,
@@ -293,46 +400,28 @@ df %>%
 ```
 
 ##Making an area chart in R
-https://twitter.com/conor_tompkins/status/967028854652129281
 
-```{r load_environment}
-library(tidyverse)
-library(lubridate)
-library(viridis)
-library(scales)
-library(ggmap)
-```
-
-Since the 2015 year is incomplete, filter it out
-```{r load_data, eval=FALSE}
-df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
-
-colnames(df) <- tolower(colnames(df))
-
-df %>%
-  mutate(date = ymd(str_sub(created_on, 1, 10)),
-         time = hms(str_sub(created_on, 11, 18)),
-         month = month(date, label = TRUE), 
-         year = year(date),
-         yday = yday(date)) %>% 
-  filter(date >= "2016-01-01",
-         date <= "2018-01-01") -> df
-```
-```{r top_requests, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
+Since 2015 and 2018 have incomplete data, filter them out
+```{r}
 df %>% 
+  filter(date >= "2016-01-01",
+         date <= "2018-01-01") -> df_filtered
+```
+
+```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE}
+df_filtered %>% 
   count(request_type, sort = TRUE) %>% 
-  top_n(5) %>% 
+  top_n(5) %>% #select the top 5 request types
   ungroup() -> df_top_requests
 ```
-```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, cache=TRUE, paged.print=FALSE}
-df %>% 
+```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
+df_filtered %>% 
   semi_join(df_top_requests) %>% #joins are ways to combine two dataframes
   count(request_type, month) %>% 
   ggplot(aes(month, n, group = request_type, fill = request_type)) +
   geom_area() +
-  scale_fill_viridis("Request type", discrete = TRUE, option = "D") +
-  scale_y_continuous(expand = c(0, 0),
-                     labels = comma) +
+  scale_fill_discrete("Request type") + #change the name of the color legend
+  scale_y_continuous(expand = c(0, 0)) + #remove the padding around the edges
   scale_x_discrete(expand = c(0, 0)) +
   labs(title = "Top 5 types of 311 requests in Pittsburgh",
        subtitle = "2016 to 2017",
@@ -340,38 +429,60 @@ df %>%
        y = "Number of requests",
        caption = my_caption) +
   theme_bw(base_family = 18) +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank()) #remove the gridlines fom the plot
 ```
 
 ##Mapping in R
-```{r map, eval=FALSE, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
-df %>% 
+Load the ggmap package, which works with ggplot2
+```{r}
+library(ggmap)
+```
+
+Select the request_type, x, and y columns. x and y are longitude and latitude
+```{r map, fig.height=12, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
+(df %>% 
   select(request_type, x, y) %>% 
   filter(!is.na(x), !is.na(y),
-         request_type %in% c("Potholes", "Snow/Ice Removal")) -> df_map
+         request_type == "Potholes") -> df_map) #remove missing x and y values
+```
 
+```{r eval=FALSE}
 city_map <-  get_map("North Oakland, Pittsburgh, PA", 
                      zoom = 12,
                      maptype = "toner", 
                      source = "stamen")
 
-city_map <- ggmap(city_map)
+(city_map <- ggmap(city_map))
 ```
-```{r eval = FALSE, error = TRUE}
+
+Put the data on the map
+```{r eval=FALSE}
+city_map +
+  geom_point(data = df_map, aes(x, y, color = request_type)) #graph the data with dots
+```
+
+There is too much data on the graph. Make the dots more transparent to show density
+
+```{r eval=FALSE}
+city_map +
+  geom_point(data = df_map, aes(x, y, color = request_type), alpha = .1) #graph the data with dots
+```
+
+Still not great. Density plots are better for showing overplotted data
+```{r eval=FALSE}
 #Put the data on the map
 city_map +
-  stat_density_2d(data = df_map, #Using a 2d contour
+  stat_density_2d(data = df_map, #Using a 2d density contour
                   aes(x, #longitude
-                      y, #latitude
-                      fill = request_type, #Use the count of arrests as the fill
+                      y, #latitude,
+                      fill = request_type,
                       alpha = ..level..), #Use alpha so you can see the map under the data
                   geom = "polygon") + #We want the contour in a polygon
-  facet_wrap(~request_type) +
-  scale_alpha_continuous(range = c(.1, 1)) +
-  guides(fill = FALSE,
-         alpha = guide_legend("Number of requests")) +
-  labs(title = "The Two Seasons In Pittsburgh",
-       subtitle = "311 requests in Pittsburgh",
+  scale_alpha_continuous(range = c(.1, 1)) + #manually set the range for the alpha
+  guides(alpha = guide_legend("Number of requests"),
+         fill = FALSE) +
+  labs(title = "Pothole requests in Pittsburgh",
+       subtitle = "311 data",
        x = "",
        y = "",
        caption = my_caption) +
