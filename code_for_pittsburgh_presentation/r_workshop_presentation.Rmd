@@ -3,11 +3,14 @@ title: "R Workshop (Code for Pittsburgh)"
 author: "Conor Tompkins"
 date: "4/18/2018"
 output: html_document
-#runtime: shiny
+runtime: shiny
 ---
 
+To do
+* add a faceted chart
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE, warning = FALSE)
 ```
 #Goals
 * Learn how R works
@@ -25,7 +28,26 @@ Install RStudio from [RStudio](https://www.rstudio.com/products/rstudio/#Desktop
 
 * RStudio Desktop
 
+#What is R
+
+R is an interpreted programming language for statistics
+
+###RStudio
+Integrated Development Environment for R
+
+1. Code editor
+2. Console
+3. Workspace (Environment, History, Connections, Git)
+4. Plots and Files (Packages, Help, Viewer)
+
+![](rstudio_panels.png)
+
+We will enter our code in the Code Editor panel. When you execute code in the code editor, the output is shown in the Console (or the Plots or Viewer) panel.
+
+Image: http://www.sthda.com/english/wiki/running-rstudio-and-setting-up-your-working-directory-easy-r-programming
+
 Install the tidyverse, lubridate, and ggmap packages
+
 ```{r eval=FALSE}
 install.packages("tidyverse", "lubridate", "ggmap")
 #you will see activity in the console as the packages are installed
@@ -36,18 +58,6 @@ Create a folder called "R workshop"
 Download the 311 data from the [WPRDC](https://data.wprdc.org/dataset/311-data)
 
 Move that CSV into the "R workshop" folder
-
-#What is R
-
-R is an interpreted programming language for statistics
-
-###RStudio
-Integrated Development Environment for R
-
-* Script
-* Console
-* Enviroment (History, Connections, Git)
-* Files (Plots, Packages, Help, Viewer)
 
 #How Does R Work?
 
@@ -77,27 +87,33 @@ Type matters
 "1" + 1
 ```
 
+str() checks the type of the object
 ```{r}
 str(1)
 str("1")
 ```
 
 ##Objects, Functions, and Assignment
-Reminder that objects are shown in the Environment panel
+Reminder that objects are shown in the Environment panel (top right panel)
 ```{r error = TRUE}
 x
 ```
+
+You assign values to objects using "<-"
 ```{r}
 x <- 1
-x
+x 
 ```
 
-You can overwrite (or update) an object
+Type out the object's name and execute it to print it in the console
+
+You can overwrite (or update) an object's value
 ```{r}
 x <- 2
 x
 ```
 
+You can manipulate objects with operators
 ```{r}
 x <- 1
 y <- 5
@@ -110,12 +126,22 @@ c() means "concatenate". It creates vectors
 a <- c(x, y)
 a
 ```
+
+
+: creates a sequence of numbers
+```{r}
+1:10
+```
+
+You can perform functions on objects
 ```{r}
 z <- sum(a)
 z
 ```
 
 ##Dataframes
+
+Dataframes are rectangular objects that consist of rows and columns, similar to what you see in an Excel spreadsheet
 ```{r}
 my_df <- data.frame(a = 1:5,
                 b = 6:10,
@@ -132,10 +158,9 @@ my_df$a
 ```{r}
 x <- 1
 
-a <- data.frame(a = 1:5,
+z <- data.frame(a = 1:5,
                 b = 6:10)
-a
-
+z
 ```
 
 ##Logic
@@ -167,65 +192,80 @@ R is case-sensitive
 library(package_name)
 ```
 
-You have to load your packages each time you start R
+You have to load your packages each time you start R. Do not use quotation marks in the library() function
 
 ##Commenting
+Any code that follows a "#" is treated as a comment, and is not executed
 ```{r}
-#start a line of code with a "#" to make that line a comment
+1 + 1
 #1 + 1
 #code that is "commented out" will not be executed
 ```
 
+Comment your code to make sure you understand it. It is aso useful to other people who use your code, including Future You. 
+
+Be kind to Future You. Comment your code.
+
 ##Getting help with R
 Use the built-in documentation. Put a "?" before the name of a function to access the documentation in the Help panel
-```{r}
+```{r eval=FALSE}
 ?mean
 ```
 
 [StackOverflow](https://stackoverflow.com/questions/tagged/r?sort=frequent&pageSize=15)
 
 ##Working Directory
-How to set up the working directory
+The working directory is where your R scripts and your data are stored
+
+###How to set up the working directory
+
+This command prints the current working directory
 ```{r}
 getwd()
 ```
 
+Use the menu to set up your working directory
+
 Session menu -> Set working directory -> choose your folder
 
+This command does the same thing
 ```{r eval = FALSE}
 setwd()
 ```
 
 ##Compare to Excel
-R separates the data from the analysis. The data is stored in files (CSV, JSON, etc). The analysis is stored in scripts. This makes it easier to share analysis performed in R. No need to take screenshots of your workflow in Excel. You have a record of everything that was done to the data.
-
-##Compare to other programming languages
+R separates the data from the analysis. The data is stored in files (CSV, JSON, etc). The analysis is stored in scripts. This makes it easier to share analysis performed in R. No need to take screenshots of your workflow in Excel. You have a record of everything that was done to the data. R also allows you to scale your analysis up to larger datasets and more complex workflows, where Excel would require lots of risky repetition of the same task.
 
 #What is the Tidyverse?
 
-A group of R packages that use a common grammar for wranging, analyzing, modeling, and graphing data
+A group of R packages that use a common grammar for wrangling, analyzing, modeling, and graphing data
 
 * Focus on dataframes
 * Columns and rows
 
-##Tidyverse functions
+##Key Tidyverse functions and operators
 
 * **select** columns
 * **filter** rows
 * **mutate** new columns
 * **group_by** and **summarize** rows
 * **ggplot2** your data
+* The pipe %>%
 
-read_csv() reads CSV files from your working directory
-```{r load_data}
+```{r}
 library(tidyverse)
 library(lubridate)
+```
 
-#df <- read_csv("your_file_name_here.csv")
-
+read_csv() reads CSV files from your working directory
+```{r eval=FALSE}
+df <- read_csv("your_file_name_here.csv")
+```
+```{r echo=FALSE}
 df <- read_csv("https://raw.githubusercontent.com/conorotompkins/pittsburgh_311/master/data/pittsburgh_311_2018_04_10.csv")
-
-colnames(df) <- tolower(colnames(df)) #make all the column names lowercase. this is a personal preference
+```
+```{r}
+colnames(df) <- tolower(colnames(df)) #make all the column names lowercase
 
 #initial data munging to get the dates in shape
 df %>%
@@ -238,21 +278,29 @@ df %>%
 
 Explore the data
 ```{r}
-df #simply type the name of the object to preview it
+df #type the name of the object to preview it
 ```
 ```{r}
 glimpse(df) #get a summary of the dataframe
 ```
 
+###The pipe
 %>% means "and then"
 
 %>% passes the dataframe to the next function
 
 ###select
+select() selects the columns you want to work with. You can also exclude columns using "-"
 ```{r}
 df %>% #select the dataframe
   select(date, request_type) #select the date and request_type columns
 ```
+
+###filter
+filter() uses logic to include or exclude rows based on the criteria you set
+
+You can translate the following code into this English sentence:
+Take our dataframe "df", and then **select** the date and request_type columns, and then **filter** only the rows where the request_type is "Potholes".
 ```{r}
 df %>% 
   select(date, request_type) %>% 
@@ -260,14 +308,23 @@ df %>%
 ```
 
 ###mutate
+mutate() adds new columns, or modifies existing columns
 ```{r}
 df %>% 
   select(date, request_type) %>% 
   filter(request_type == "Potholes") %>% 
-  mutate(weekday = wday(date, label = TRUE))
+  mutate(weekday = wday(date, label = TRUE)) #add the wday column for day of the week
 ```
 
 ###group_by and summarize
+group_by() and summarize() allow you to gather groups of rows and perform functions on them
+
+Typical functions
+
+* sum()
+* mean()
+* sd() standard deviation
+* n() the number of rows
 ```{r}
 (df %>% 
   select(date, request_type) %>% #select columns
@@ -292,14 +349,13 @@ ggplot(data = _ , aes(x = _, y = _)) +
   geom_()
 ```
 
-Pipe your data directly into ggplot2
-```{r eval=FALSE}
-some_dataframe %>% 
-  ggplot(data = _ , aes(x = _, y = _)) +
-  geom_()
+Graph the number of pothole requests per month
+```{r}
+ggplot(data = df_potholes_month, aes(x = month, y = count)) +
+  geom_col()
 ```
 
-Graph the number of pothole requests per month
+Pipe your data directly into ggplot2
 ```{r}
 df_potholes_month %>% 
   ggplot(aes(x = month, y = count)) + #put the month column on the x axis, count on the y axis
@@ -314,6 +370,39 @@ df_potholes_month %>%
   labs(title = "Pothole requests to Pittsburgh 311",
        x = "",
        y = "Number of requests",
+       caption = "Source: Western Pennsylvania Regional Datacenter") +
+  theme_bw()
+```
+
+One problems with this graph is that the data is not complete for the years 2015 and 2018
+```{r}
+df %>%
+  distinct(year, date) %>% #get the unique combinations of year and date
+  count(year) #shortcut for group_by + summarize for counting. returns column "n". calculate how many days of data each year has
+```
+
+Instead of plotting the raw sum, we can calculate and plot the mean number of requests per month
+```{r}
+(df %>% 
+  filter(date >= "2016-01-01", #only select the rows where the date is after 2016-01-01 and before 2018-01-1
+         date <= "2018-01-01",
+         request_type == "Potholes") %>% 
+  count(request_type, year, month) -> df_filtered)
+```
+
+```{r}
+df_filtered %>% 
+  group_by(month) %>% 
+  summarize(mean_requests = mean(n)) -> df_filtered_months
+```
+
+```{r}
+df_filtered_months %>% 
+  ggplot(aes(month, mean_requests)) +
+  geom_col() +
+    labs(title = "Pothole requests to Pittsburgh 311",
+       x = "",
+       y = "Mean number of requests",
        caption = "Source: Western Pennsylvania Regional Datacenter") +
   theme_bw()
 ```
@@ -350,12 +439,12 @@ Graph the data by number of requests per day of the year
   filter(request_type == "Potholes") %>% 
   mutate(year = year(date), #create a year column
          yday = yday(date)) %>% #create a day of the year column
-  count(year, yday) -> df_day_of_year)  #shortcut for group_by + summarize for counting. returns "n"
+  count(year, yday) -> df_day_of_year)  
 ```
 
 ```{r}
 df_day_of_year %>% 
-  ggplot(aes(yday, n, group = year)) + #color the lines by year. #as.factor() turns the year column from integer to factor (ordinal string)
+  ggplot(aes(yday, n, group = year)) + #color the lines by year. as.factor() turns the year column from integer to factor, which has an inherent order
   geom_line() + 
   labs(title = my_title,
        x = "Day of the year",
@@ -388,7 +477,7 @@ Graph the cumulative sum of pothole requests per year
   arrange(date) %>% #always arrange your data for cumulative sums
   group_by(year, yday) %>%
   summarize(n = n()) %>% 
-  ungroup() %>% 
+  ungroup() %>% #ungroup () resets whatever grouping you had before
   group_by(year) %>% 
   mutate(cumsum = cumsum(n)) -> df_cumulative_sum) #calculate the cumulative sum per year
 ```
@@ -405,23 +494,19 @@ df_cumulative_sum %>%
   theme_bw(base_family = 18)
 ```
 
-##Making an area chart in R
+##Making an area chart
 
 Since 2015 and 2018 have incomplete data, filter them out
-```{r}
-df %>% 
-  filter(date >= "2016-01-01",
-         date <= "2018-01-01") -> df_filtered
-```
-
 ```{r top_requests, message=FALSE, warning=FALSE, paged.print=FALSE}
-df_filtered %>% 
+df %>% 
   count(request_type, sort = TRUE) %>% 
   top_n(5) %>% #select the top 5 request types
   ungroup() -> df_top_requests
 ```
 ```{r area_chart, fig.height=6, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
-df_filtered %>% 
+df %>% 
+  filter(date >= "2016-01-01", #only select the rows where the date is after 2016-01-01 and before 2018-01-1
+         date <= "2018-01-01") %>% 
   semi_join(df_top_requests) %>% #joins are ways to combine two dataframes
   count(request_type, month) %>% 
   ggplot(aes(month, n, group = request_type, fill = request_type)) +
@@ -438,7 +523,7 @@ df_filtered %>%
   theme(panel.grid = element_blank()) #remove the gridlines fom the plot
 ```
 
-##Mapping in R
+##Mapping
 Load the ggmap package, which works with ggplot2
 ```{r}
 library(ggmap)
@@ -452,7 +537,7 @@ Select the request_type, x, and y columns. x and y are longitude and latitude
          request_type == "Potholes") -> df_map) #remove missing x and y values
 ```
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 city_map <-  get_map("North Oakland, Pittsburgh, PA", 
                      zoom = 12,
                      maptype = "toner", 
@@ -462,20 +547,21 @@ city_map <-  get_map("North Oakland, Pittsburgh, PA",
 ```
 
 Put the data on the map
-```{r eval=TRUE}
+```{r eval=FALSE}
 city_map +
   geom_point(data = df_map, aes(x, y, color = request_type)) #graph the data with dots
 ```
 
 There is too much data on the graph. Make the dots more transparent to show density
-
-```{r eval=TRUE}
+```{r eval=FALSE}
 city_map +
   geom_point(data = df_map, aes(x, y, color = request_type), alpha = .1) #graph the data with dots
 ```
 
-Still not great. Density plots are better for showing overplotted data
-```{r eval=TRUE}
+Still not great
+
+Density plots are better for showing overplotted data
+```{r eval=FALSE}
 #Put the data on the map
 city_map +
   stat_density_2d(data = df_map, #Using a 2d density contour
