@@ -1,5 +1,6 @@
 library(broom)
 library(ggfortify)
+library(ggrepel)
 
 options(scipen = 999)
 set.seed(1234)
@@ -10,8 +11,22 @@ df_months_pca <- df_months %>%
                                   center = TRUE, scale = TRUE)),
          pca_aug = map2(pca, data, ~augment(.x, data = .y)))
 
-df_months_pca
 
+#dont need this. use the tidy df from months_PCA.R
+df_months_pca
+df_months_pca$pca_aug[[1]] %>% 
+  as_tibble() %>% 
+  select(request_type, .fittedPC1, .fittedPC2) %>% 
+  mutate(outlier = case_when(abs(.fittedPC1) > 2.5 & abs(.fittedPC2) > 1.5 ~ TRUE)) -> df_pca 
+
+df_pca %>% 
+  ggplot(aes(.fittedPC1, .fittedPC2)) +
+  geom_point() +
+  geom_label_repel(data = df_pca %>% filter(outlier), 
+             aes(.fittedPC1, .fittedPC2, label = request_type)) +
+  theme_bw()
+
+#might not need this. just use the tidy df
 var_exp <- df_months_pca %>% 
   unnest(pca_aug) %>% 
   summarize_at(.vars = vars(contains("PC")), .funs = funs(var)) %>% 
@@ -38,6 +53,24 @@ var_exp %>%
   labs(y = "Variance",
        title = "Variance explained by each principal component")
 
+#just geom_point
+df_months_pca %>%
+  mutate(
+    pca_graph = map2(
+      .x = pca,
+      .y = data,
+      ~ autoplot(.x, loadings = TRUE, loadings.label = TRUE,
+                 loadings.label.repel = TRUE,
+                 data = .y) +
+        theme_bw() +
+        labs(x = "Principal Component 1",
+             y = "Principal Component 2",
+             title = "First two principal components of PCA on 311 dataset")
+    )
+  ) %>%
+  pull(pca_graph)
+
+#geom_label, but overplotted
 df_months_pca %>%
   mutate(
     pca_graph = map2(
@@ -55,4 +88,7 @@ df_months_pca %>%
     )
   ) %>%
   pull(pca_graph)
-ggsave("images/month_pca_graph.png")
+#ggsave("images/month_pca_graph.png")
+
+#create outlier graph, use tidy df
+#ggplot(aes(PC1, PC2))
