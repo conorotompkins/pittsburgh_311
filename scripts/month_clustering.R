@@ -2,9 +2,10 @@ source("scripts/load_data.R")
 
 df %>% 
   count(request_type, sort = TRUE) %>% 
-  filter(n > 200) -> df_top_requests
+  filter(n > 400) -> df_top_requests
 
 df %>%
+  select(-time) %>% 
   semi_join(df_top_requests) %>% 
   group_by(request_type, month) %>% 
   summarize(n = n()) %>% 
