@@ -16,18 +16,33 @@ df_months %>%
   remove_rownames() %>% 
   column_to_rownames(var = "request_type") -> df_months
 
-pc <- prcomp(df_months, scale = TRUE)
+df_months %>% 
+  prcomp(scale = TRUE) -> pc
+
+#pc <- prcomp(df_months, scale = TRUE)
 
 # information about rotation
-head(tidy(pc))
+pc %>% 
+  tidy() %>% 
+  head()
+#head(tidy(pc))
 
 # information about samples (request types)
-head(tidy(pc, "samples"))
+pc %>% 
+  tidy("samples") %>% 
+  head()
+#head(tidy(pc, "samples"))
 
 # information about PCs
-tidy(pc, "pcs") 
+pc %>% 
+  tidy("pcs")
 
-au <- augment(pc, data = df_months)
+#tidy(pc, "pcs") 
+pc %>% 
+  augment(data = df_months) -> au
+
+
+#au <- augment(pc, data = df_months)
 head(au)
 
 ggplot(au, aes(.fittedPC1, .fittedPC2)) +
