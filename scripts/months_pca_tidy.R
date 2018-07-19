@@ -2,6 +2,8 @@ library(broom)
 library(ggfortify)
 library(ggrepel)
 
+#souce https://tbradley1013.github.io/2018/02/01/pca-in-a-tidy-verse-framework/
+
 options(scipen = 999)
 set.seed(1234)
 
